@@ -1,0 +1,16 @@
+# IDEs
+.idea/
+.vscode/
+*.iml
+
+# Backend
+**/target/
+**/.mvn/
+**/mvnw
+**/mvnw.cmd
+
+# Frontend
+**/node_modules/
+**/.next/
+**/out/
+.env*.local
