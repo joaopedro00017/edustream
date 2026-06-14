@@ -5,9 +5,12 @@ import com.edustream.api.domain.model.RoleName;
 import com.edustream.api.domain.model.User;
 import com.edustream.api.domain.repository.RoleRepository;
 import com.edustream.api.domain.repository.UserRepository;
+import com.edustream.api.dto.LoginRequestDTO;
+import com.edustream.api.dto.TokenResponseDTO;
 import com.edustream.api.dto.UserRegisterDTO;
 import com.edustream.api.dto.UserResponseDTO;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,6 +22,9 @@ import java.util.stream.Collectors;
 public class UserService {
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
+
+    private final PasswordEncoder passwordEncoder;
+    private final TokenService tokenService;
 
     @Transactional
     public UserResponseDTO registerUser(UserRegisterDTO dto){
@@ -32,7 +38,7 @@ public class UserService {
         User user = new User();
         user.setName(dto.name());
         user.setEmail(dto.email());
-        user.setPassword(dto.password());
+        user.setPassword(passwordEncoder.encode(dto.password()));
         user.getRoles().add(studentRole);
         User savedUser = userRepository.save(user);
 
@@ -46,5 +52,17 @@ public class UserService {
                 savedUser.getEmail(),
                 roleNames
         );
+    }
+
+    public TokenResponseDTO loginUser(LoginRequestDTO dto) {
+        User user = userRepository.findByEmail(dto.email())
+                .orElseThrow(() -> new RuntimeException("Credenciais inválidas"));
+
+        if (!passwordEncoder.matches(dto.password(), user.getPassword())) {
+            throw new RuntimeException("Credenciais inválidas");
+        }
+
+        String token = tokenService.generateToken(user);
+        return new TokenResponseDTO(token);
     }
 }

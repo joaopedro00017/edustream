@@ -1,4 +1,8 @@
 package com.edustream.api.dto;
 
-public record RestErrorDTO() {
-}
+import java.time.Instant;
+
+public record RestErrorDTO(
+        Instant timestamp,
+        String message
+) {}
