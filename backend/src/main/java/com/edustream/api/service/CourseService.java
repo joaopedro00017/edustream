@@ -1,15 +1,14 @@
 package com.edustream.api.service;
 
+import com.edustream.api.domain.exception.CustomAccessDeniedException;
+import com.edustream.api.domain.exception.ResourceNotFoundException;
 import com.edustream.api.domain.model.Course;
 import com.edustream.api.domain.model.User;
 import com.edustream.api.domain.repository.CourseRepository;
 import com.edustream.api.dto.CourseRequestDTO;
 import com.edustream.api.dto.CourseResponseDTO;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
 
 import java.util.List;
 import java.util.UUID;
@@ -34,9 +33,9 @@ public class CourseService {
     }
 
     public CourseResponseDTO atualizarCurso (UUID id, CourseRequestDTO dto, User user){
-        Course curso = courseRepository.findById(id).orElseThrow(() -> new RuntimeException("Curso não encontrado"));
+        Course curso = courseRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Curso não encontrado"));
         if (!curso.getUser().getId().equals(user.getId())){
-            throw new RuntimeException("Acesso negado, alteração permitida apenas para o instrutor dono do curso!");
+            throw new CustomAccessDeniedException("Acesso negado, alteração permitida apenas para o instrutor dono do curso!");
         }
         curso.setTitle(dto.title());
         curso.setDescription(dto.description());
@@ -47,9 +46,9 @@ public class CourseService {
     }
 
     public void deletarCurso(UUID id, User user){
-        Course curso = courseRepository.findById(id).orElseThrow(() -> new RuntimeException("Curso não encontrado"));
+        Course curso = courseRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Curso não encontrado"));
         if (!curso.getUser().getId().equals(user.getId())){
-            throw new RuntimeException("Acesso negado, exclusão permitida apenas para o instrutor dono do curso!");
+            throw new CustomAccessDeniedException("Acesso negado, exclusão permitida apenas para o instrutor dono do curso!");
         }
         courseRepository.delete(curso);
     }

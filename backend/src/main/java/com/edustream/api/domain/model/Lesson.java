@@ -5,17 +5,14 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 
 @Entity
-@Table(name = "tb_modules")
+@Table(name="tb_lessons")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class Module {
-
+public class Lesson {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
@@ -26,10 +23,10 @@ public class Module {
     @Column(nullable = true)
     private String description;
 
-    @OneToMany(mappedBy = "module", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Lesson> lessons = new ArrayList<>();
+    @Column(nullable = false)
+    private String videoUrl;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "course_id", nullable = false)
-    private Course course;
+    @JoinColumn(name = "module_id", nullable = false)
+    private Module module;
 }
