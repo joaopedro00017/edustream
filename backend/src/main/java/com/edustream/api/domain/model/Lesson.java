@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 import java.util.UUID;
 
 @Entity
-@Table(name="tb_lessons")
+@Table(name = "tb_lessons") // Corrigido aqui
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
