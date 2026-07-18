@@ -41,7 +41,7 @@ public class LessonService {
     }
 
     public LessonResponseDTO atualizarAula(UUID id, LessonRequestDTO dto, User user){
-        Lesson aula = lessonRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Modulo não encontrado"));
+        Lesson aula = lessonRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Lição não encontrado"));
         if (!aula.getModule().getCourse().getUser().getId().equals(user.getId())){
             throw new CustomAccessDeniedException("Acesso negado, alteração permitida apenas para o instrutor dono do curso deste modulo!");
         }
@@ -65,4 +65,16 @@ public class LessonService {
         List<Lesson> aula = lessonRepository.findByModuleId(moduleId);
         return aula.stream().map(aula1 -> new LessonResponseDTO(aula1.getId(), aula1.getTitle(), aula1.getDescription(), aula1.getVideoUrl(), aula1.getModule().getId())).toList();
     }
+
+    public LessonResponseDTO buscarAula(UUID id){
+        Lesson aulaBusca = lessonRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Aula não encontrada!"));
+        return new LessonResponseDTO(
+                aulaBusca.getId(),
+                aulaBusca.getTitle(),
+                aulaBusca.getDescription(),
+                aulaBusca.getVideoUrl(),
+                aulaBusca.getModule().getId()
+        );
+    }
+
 }

@@ -49,4 +49,10 @@ public class LessonController {
         List<LessonResponseDTO> aula = lessonService.listaAulas(moduleId);
         return ResponseEntity.ok(aula);
     }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<LessonResponseDTO> buscarAulas (@PathVariable UUID id){
+        LessonResponseDTO aulaBuscada = lessonService.buscarAula(id);
+        return ResponseEntity.ok(aulaBuscada);
+    }
 }
