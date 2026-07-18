@@ -1,4 +1,8 @@
 package com.edustream.api.dto;
 
-public class InstructorMetricsDTO {
+public record InstructorMetricsDTO (
+        Long totalAlunos,
+        Double taxaDeConclusaoMedia,
+        Long cursosPublicados
+){
 }
