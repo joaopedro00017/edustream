@@ -1,5 +1,6 @@
 package com.edustream.api.service;
 
+import com.edustream.api.domain.exception.CustomAccessDeniedException;
 import com.edustream.api.domain.exception.ResourceNotFoundException;
 import com.edustream.api.domain.model.*;
 import com.edustream.api.domain.repository.EnrollmentRepository;
@@ -28,7 +29,7 @@ public class LessonProgressService {
         Course course = lesson.getModule().getCourse();
 
         Enrollment enrollment = enrollmentRepository.findByUserIdAndCourseId(user.getId(), course.getId())
-                .orElseThrow(() -> new RuntimeException("Acesso negado! Você não está matriculado neste curso."));
+                .orElseThrow(() -> new CustomAccessDeniedException("Acesso negado! Você não está matriculado neste curso."));
         Optional<LessonProgress> progressOptional = lessonProgressRepository
                 .findByEnrollmentIdAndLessonId(enrollment.getId(), lesson.getId());
 

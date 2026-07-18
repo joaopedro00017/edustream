@@ -1,5 +1,7 @@
 package com.edustream.api.service;
 
+import com.edustream.api.domain.exception.ConflictException;
+import com.edustream.api.domain.exception.InvalidCredentialsException;
 import com.edustream.api.domain.model.Role;
 import com.edustream.api.domain.model.RoleName;
 import com.edustream.api.domain.model.User;
@@ -29,7 +31,7 @@ public class UserService {
     @Transactional
     public UserResponseDTO registerUser(UserRegisterDTO dto){
         if (userRepository.findByEmail(dto.email()).isPresent()){
-            throw new RuntimeException("E-mail já cadastrado no sistema!");
+            throw new ConflictException("E-mail já cadastrado no sistema!");
         }
 
         RoleName roleName = resolveRoleName(dto.role());
@@ -82,10 +84,10 @@ public class UserService {
 
     public LoginResponseDTO loginUser(LoginRequestDTO dto) {
         User user = userRepository.findByEmail(dto.email())
-                .orElseThrow(() -> new RuntimeException("Credenciais inválidas"));
+                .orElseThrow(() -> new InvalidCredentialsException("Credenciais inválidas"));
 
         if (!passwordEncoder.matches(dto.password(), user.getPassword())) {
-            throw new RuntimeException("Credenciais inválidas");
+            throw new InvalidCredentialsException("Credenciais inválidas");
         }
 
         String token = tokenService.generateToken(user);

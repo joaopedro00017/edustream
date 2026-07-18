@@ -5,6 +5,7 @@ import com.edustream.api.domain.model.Enrollment;
 import com.edustream.api.domain.model.User;
 import com.edustream.api.domain.repository.CourseRepository;
 import com.edustream.api.domain.repository.EnrollmentRepository;
+import com.edustream.api.domain.exception.ConflictException;
 import com.edustream.api.domain.exception.ResourceNotFoundException;
 import com.edustream.api.dto.EnrollmentResponseDTO;
 import lombok.RequiredArgsConstructor;
@@ -27,7 +28,7 @@ public class EnrollmentService {
         Course course = courseRepository.findById(courseId)
                 .orElseThrow(() -> new ResourceNotFoundException("Curso não encontrado com o ID fornecido."));
         if (enrollmentRepository.existsByUserIdAndCourseId(user.getId(), courseId)) {
-            throw new RuntimeException("Você já está matriculado neste curso.");
+            throw new ConflictException("Você já está matriculado neste curso.");
         }
 
         Enrollment enrollment = new Enrollment();

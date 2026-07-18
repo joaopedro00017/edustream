@@ -1,6 +1,8 @@
 package com.edustream.api.controller.exception;
 
+import com.edustream.api.domain.exception.ConflictException;
 import com.edustream.api.domain.exception.CustomAccessDeniedException;
+import com.edustream.api.domain.exception.InvalidCredentialsException;
 import com.edustream.api.domain.exception.ResourceNotFoundException;
 import com.edustream.api.dto.RestErrorDTO;
 import org.springframework.http.HttpStatus;
@@ -25,6 +27,20 @@ public class GlobalExceptionHandler {
     public ResponseEntity<RestErrorDTO> handleAccessDenied(CustomAccessDeniedException exception) {
         RestErrorDTO errorDTO = new RestErrorDTO(Instant.now(), exception.getMessage());
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(errorDTO);
+    }
+
+    // Captura credenciais inválidas no login (Status 401)
+    @ExceptionHandler(InvalidCredentialsException.class)
+    public ResponseEntity<RestErrorDTO> handleInvalidCredentials(InvalidCredentialsException exception) {
+        RestErrorDTO errorDTO = new RestErrorDTO(Instant.now(), exception.getMessage());
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorDTO);
+    }
+
+    // Captura conflitos de estado, como e-mail ou matrícula duplicados (Status 409)
+    @ExceptionHandler(ConflictException.class)
+    public ResponseEntity<RestErrorDTO> handleConflict(ConflictException exception) {
+        RestErrorDTO errorDTO = new RestErrorDTO(Instant.now(), exception.getMessage());
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(errorDTO);
     }
 
     // Mecanismo de segurança genérico para outros erros inesperados (Status 400)
