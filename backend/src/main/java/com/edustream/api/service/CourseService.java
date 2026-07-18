@@ -32,6 +32,16 @@ public class CourseService {
         return courseRepository.findAll().stream().map(curso -> new CourseResponseDTO(curso.getId(), curso.getTitle(), curso.getDescription(), curso.getUser().getName())).toList();
     }
 
+    public List<CourseResponseDTO> listarCursosDoInstrutor(User user){
+        List<Course> cursos = courseRepository.findByUserId(user.getId());
+        return cursos.stream().map(curso -> new CourseResponseDTO(
+                curso.getId(),
+                curso.getTitle(),
+                curso.getDescription(),
+                curso.getUser().getName()
+        )).toList();
+    }
+
     public CourseResponseDTO atualizarCurso (UUID id, CourseRequestDTO dto, User user){
         Course curso = courseRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Curso não encontrado"));
         if (!curso.getUser().getId().equals(user.getId())){
@@ -52,4 +62,6 @@ public class CourseService {
         }
         courseRepository.delete(curso);
     }
+
+
 }

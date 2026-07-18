@@ -28,6 +28,13 @@ public class CourseController {
     }
 
     @PreAuthorize("hasRole('INSTRUCTOR')")
+    @GetMapping("/my-courses")
+    public ResponseEntity<List<CourseResponseDTO>> listarMeusCursos(@AuthenticationPrincipal User user) {
+        List<CourseResponseDTO> meusCursos = courseService.listarCursosDoInstrutor(user);
+        return ResponseEntity.ok(meusCursos);
+    }
+
+    @PreAuthorize("hasRole('INSTRUCTOR')")
     @PostMapping
     public ResponseEntity<CourseResponseDTO> salvarCurso(@RequestBody CourseRequestDTO requestDTO, @AuthenticationPrincipal User user){
         CourseResponseDTO cursoSalvo = courseService.cadastrarCurso(user, requestDTO);
