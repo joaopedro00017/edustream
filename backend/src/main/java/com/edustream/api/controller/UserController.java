@@ -1,7 +1,7 @@
 package com.edustream.api.controller;
 
 import com.edustream.api.dto.LoginRequestDTO;
-import com.edustream.api.dto.TokenResponseDTO;
+import com.edustream.api.dto.LoginResponseDTO;
 import com.edustream.api.dto.UserRegisterDTO;
 import com.edustream.api.dto.UserResponseDTO;
 import com.edustream.api.service.UserService;
@@ -24,8 +24,8 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<TokenResponseDTO> login(@RequestBody LoginRequestDTO dto) {
-        TokenResponseDTO token = userService.loginUser(dto);
-        return ResponseEntity.ok(token);
+    public ResponseEntity<LoginResponseDTO> login(@RequestBody LoginRequestDTO dto) {
+        LoginResponseDTO response = userService.loginUser(dto);
+        return ResponseEntity.ok(response);
     }
 }

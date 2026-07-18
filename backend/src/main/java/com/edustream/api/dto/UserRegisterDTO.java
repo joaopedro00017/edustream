@@ -1,4 +1,4 @@
 package com.edustream.api.dto;
 
-public record UserRegisterDTO(String name, String email, String password) {
+public record UserRegisterDTO(String name, String email, String password, String role) {
 }

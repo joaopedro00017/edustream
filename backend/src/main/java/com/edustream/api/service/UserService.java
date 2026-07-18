@@ -6,7 +6,7 @@ import com.edustream.api.domain.model.User;
 import com.edustream.api.domain.repository.RoleRepository;
 import com.edustream.api.domain.repository.UserRepository;
 import com.edustream.api.dto.LoginRequestDTO;
-import com.edustream.api.dto.TokenResponseDTO;
+import com.edustream.api.dto.LoginResponseDTO;
 import com.edustream.api.dto.UserRegisterDTO;
 import com.edustream.api.dto.UserResponseDTO;
 import lombok.RequiredArgsConstructor;
@@ -32,29 +32,55 @@ public class UserService {
             throw new RuntimeException("E-mail já cadastrado no sistema!");
         }
 
-        Role studentRole = roleRepository.findByName(RoleName.ROLE_STUDENT)
-                .orElseThrow(()-> new RuntimeException("Perfil padrão ROLE_STUDENT não encontrado no banco de dados!"));
+        RoleName roleName = resolveRoleName(dto.role());
+        Role role = roleRepository.findByName(roleName)
+                .orElseThrow(() -> new RuntimeException("Role não encontrado no banco de dados!"));
 
         User user = new User();
         user.setName(dto.name());
         user.setEmail(dto.email());
         user.setPassword(passwordEncoder.encode(dto.password()));
-        user.getRoles().add(studentRole);
+        user.getRoles().add(role);
         User savedUser = userRepository.save(user);
 
-        Set<RoleName> roleNames = savedUser.getRoles().stream()
+        return toUserResponseDTO(savedUser);
+    }
+
+    private UserResponseDTO toUserResponseDTO(User user) {
+        Set<RoleName> roleNames = user.getRoles().stream()
                 .map(Role::getName)
                 .collect(Collectors.toSet());
 
         return new UserResponseDTO(
-                savedUser.getId(),
-                savedUser.getName(),
-                savedUser.getEmail(),
+                user.getId(),
+                user.getName(),
+                user.getEmail(),
                 roleNames
         );
     }
 
-    public TokenResponseDTO loginUser(LoginRequestDTO dto) {
+    private RoleName resolveRoleName(String role) {
+        if (role == null || role.isBlank()) {
+            return RoleName.ROLE_STUDENT;
+        }
+
+        String nomeNormalizado = role.trim().toUpperCase();
+        if (!nomeNormalizado.startsWith("ROLE_")) {
+            nomeNormalizado = "ROLE_" + nomeNormalizado;
+        }
+
+        if (nomeNormalizado.equals(RoleName.ROLE_ADMIN.name())) {
+            throw new RuntimeException("Não é possível se autocadastrar com o perfil ADMIN.");
+        }
+
+        try {
+            return RoleName.valueOf(nomeNormalizado);
+        } catch (IllegalArgumentException e) {
+            throw new RuntimeException("Perfil informado é inválido: " + role);
+        }
+    }
+
+    public LoginResponseDTO loginUser(LoginRequestDTO dto) {
         User user = userRepository.findByEmail(dto.email())
                 .orElseThrow(() -> new RuntimeException("Credenciais inválidas"));
 
@@ -63,6 +89,6 @@ public class UserService {
         }
 
         String token = tokenService.generateToken(user);
-        return new TokenResponseDTO(token);
+        return new LoginResponseDTO(token, toUserResponseDTO(user));
     }
 }
