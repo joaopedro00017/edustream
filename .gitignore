@@ -14,3 +14,5 @@
 **/.next/
 **/out/
 .env*.local
+
+archives/
