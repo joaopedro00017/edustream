@@ -24,7 +24,9 @@ public class SecurityConfigurations {
         return httpSecurity.csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authorizeHttpRequests(authorize ->authorize.requestMatchers("/api/auth/**")
+                .authorizeHttpRequests(authorize ->authorize
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                        .requestMatchers("/api/auth/**")
                         .permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/certificates/validate/**").permitAll().anyRequest().authenticated())
                 .addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class)
