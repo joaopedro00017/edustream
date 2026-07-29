@@ -38,7 +38,7 @@ export default function InstructorDashboardPage() {
         Olá, {user?.name}
       </h1>
 
-      {error && <p className="mt-4 text-sm text-red-400">{error}</p>}
+      {error && <p className="mt-4 text-sm text-destructive">{error}</p>}
 
       <dl className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
         <MetricCard label="Alunos" value={metrics?.totalAlunos} />
@@ -57,7 +57,7 @@ export default function InstructorDashboardPage() {
 function MetricCard({ label, value }: { label: string; value: string | number | undefined }) {
   return (
     <div className="rounded-xl border border-border bg-surface p-6">
-      <dt className="text-sm text-muted">{label}</dt>
+      <dt className="text-sm text-muted-foreground">{label}</dt>
       <dd className="mt-2 text-3xl font-semibold text-foreground">{value ?? "—"}</dd>
     </div>
   );

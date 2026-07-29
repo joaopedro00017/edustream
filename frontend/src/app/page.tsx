@@ -7,7 +7,7 @@ export default function Home() {
         <h1 className="text-4xl font-semibold tracking-tight text-foreground sm:text-5xl">
           EduStream
         </h1>
-        <p className="max-w-md text-lg text-muted">
+        <p className="max-w-md text-lg text-muted-foreground">
           Cursos em vídeo sob demanda, no seu ritmo.
         </p>
       </div>
@@ -15,7 +15,7 @@ export default function Home() {
       <div className="flex gap-4">
         <Link
           href="/auth/login"
-          className="rounded-md bg-accent px-5 py-2.5 font-medium text-accent-foreground transition-opacity hover:opacity-90"
+          className="rounded-md bg-primary px-5 py-2.5 font-medium text-primary-foreground transition-opacity hover:opacity-90"
         >
           Entrar
         </Link>

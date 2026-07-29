@@ -28,7 +28,7 @@ export function AppHeader() {
           <Link
             key={item.href}
             href={item.href}
-            className="text-sm text-muted transition-colors hover:text-foreground"
+            className="text-sm text-muted-foreground transition-colors hover:text-foreground"
           >
             {item.label}
           </Link>
@@ -36,7 +36,7 @@ export function AppHeader() {
       </nav>
 
       <div className="flex items-center gap-4">
-        <span className="text-sm text-muted">{user?.name}</span>
+        <span className="text-sm text-muted-foreground">{user?.name}</span>
         <button
           type="button"
           onClick={logout}
