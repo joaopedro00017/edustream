@@ -1,10 +1,12 @@
 package com.edustream.api.service;
 
+import com.edustream.api.domain.exception.ConflictException;
 import com.edustream.api.domain.exception.CustomAccessDeniedException;
 import com.edustream.api.domain.exception.ResourceNotFoundException;
 import com.edustream.api.domain.model.Course;
 import com.edustream.api.domain.model.User;
 import com.edustream.api.domain.repository.CourseRepository;
+import com.edustream.api.domain.repository.LessonProgressRepository;
 import com.edustream.api.dto.CourseRequestDTO;
 import com.edustream.api.dto.CourseResponseDTO;
 import lombok.RequiredArgsConstructor;
@@ -17,6 +19,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class CourseService {
     private final CourseRepository courseRepository;
+    private final LessonProgressRepository lessonProgressRepository;
 
     public CourseResponseDTO cadastrarCurso(User user, CourseRequestDTO dto){
         Course curso = new Course();
@@ -59,6 +62,9 @@ public class CourseService {
         Course curso = courseRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Curso não encontrado"));
         if (!curso.getUser().getId().equals(user.getId())){
             throw new CustomAccessDeniedException("Acesso negado, exclusão permitida apenas para o instrutor dono do curso!");
+        }
+        if (lessonProgressRepository.existsByLesson_Module_CourseId(id)) {
+            throw new ConflictException("Não é possível excluir um curso com aulas já assistidas por algum aluno.");
         }
         courseRepository.delete(curso);
     }

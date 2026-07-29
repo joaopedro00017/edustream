@@ -1,10 +1,12 @@
 package com.edustream.api.service;
 
+import com.edustream.api.domain.exception.ConflictException;
 import com.edustream.api.domain.exception.CustomAccessDeniedException;
 import com.edustream.api.domain.exception.ResourceNotFoundException;
 import com.edustream.api.domain.model.Lesson;
 import com.edustream.api.domain.model.Module;
 import com.edustream.api.domain.model.User;
+import com.edustream.api.domain.repository.LessonProgressRepository;
 import com.edustream.api.domain.repository.LessonRepository;
 import com.edustream.api.domain.repository.ModuleRepository;
 import com.edustream.api.dto.LessonRequestDTO;
@@ -21,6 +23,7 @@ import java.util.UUID;
 public class LessonService {
     private final LessonRepository lessonRepository;
     private final ModuleRepository moduleRepository;
+    private final LessonProgressRepository lessonProgressRepository;
 
     public LessonResponseDTO cadastrarAula(LessonRequestDTO dto, User user) {
         Module module = moduleRepository.findById(dto.moduleId())
@@ -57,6 +60,9 @@ public class LessonService {
         Lesson aula = lessonRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Lição não encontrada"));
         if (!aula.getModule().getCourse().getUser().getId().equals(user.getId())){
             throw new CustomAccessDeniedException("Acesso negado, exclusão permitida apenas para o instrutor dono do curso deste modulo!");
+        }
+        if (lessonProgressRepository.existsByLessonId(id)) {
+            throw new ConflictException("Não é possível excluir uma aula que já foi assistida por algum aluno.");
         }
         lessonRepository.delete(aula);
     }
