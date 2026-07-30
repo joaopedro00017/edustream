@@ -34,6 +34,12 @@ public class CourseController {
         return ResponseEntity.ok(meusCursos);
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<CourseResponseDTO> buscarCursoPorId(@PathVariable UUID id) {
+        CourseResponseDTO curso = courseService.buscarCurso(id);
+        return ResponseEntity.ok(curso);
+    }
+
     @PreAuthorize("hasRole('INSTRUCTOR')")
     @PostMapping
     public ResponseEntity<CourseResponseDTO> salvarCurso(@RequestBody CourseRequestDTO requestDTO, @AuthenticationPrincipal User user){

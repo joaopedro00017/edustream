@@ -35,6 +35,12 @@ public class CourseService {
         return courseRepository.findAll().stream().map(curso -> new CourseResponseDTO(curso.getId(), curso.getTitle(), curso.getDescription(), curso.getUser().getName())).toList();
     }
 
+    public CourseResponseDTO buscarCurso(UUID id) {
+        Course curso = courseRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Curso não encontrado"));
+        return new CourseResponseDTO(curso.getId(), curso.getTitle(), curso.getDescription(), curso.getUser().getName());
+    }
+
     public List<CourseResponseDTO> listarCursosDoInstrutor(User user){
         List<Course> cursos = courseRepository.findByUserId(user.getId());
         return cursos.stream().map(curso -> new CourseResponseDTO(
