@@ -8,7 +8,7 @@ import { toast } from "sonner";
 import { CircleAlert, Pencil, Plus, Trash2 } from "lucide-react";
 import {
   deleteCourse,
-  listMyCourses,
+  getCourse,
   updateCourse,
 } from "@/lib/courses/course-service";
 import {
@@ -83,15 +83,12 @@ export default function InstructorCourseDetailPage() {
   const [isCreatingModule, setIsCreatingModule] = useState(false);
 
   useEffect(() => {
-    Promise.all([listMyCourses(), listModulesByCourse(courseId)])
-      .then(([cursos, modulosDoCurso]) => {
-        const cursoAtual = cursos.find((c) => c.id === courseId) ?? null;
+    Promise.all([getCourse(courseId), listModulesByCourse(courseId)])
+      .then(([cursoAtual, modulosDoCurso]) => {
         setCourse(cursoAtual);
         setModules(modulosDoCurso);
-        if (cursoAtual) {
-          setEditTitle(cursoAtual.title);
-          setEditDescription(cursoAtual.description);
-        }
+        setEditTitle(cursoAtual.title);
+        setEditDescription(cursoAtual.description);
       })
       .catch((error) => {
         console.error("Erro ao buscar dados do curso", error);

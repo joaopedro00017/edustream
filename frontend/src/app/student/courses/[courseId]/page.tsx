@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { CircleAlert, PlayCircle } from "lucide-react";
-import { listCourses } from "@/lib/courses/course-service";
+import { getCourse } from "@/lib/courses/course-service";
 import { listModulesByCourse } from "@/lib/modules/module-service";
 import { listLessonsByModule } from "@/lib/lessons/lesson-service";
 import { listMyEnrollments } from "@/lib/enrollments/enrollment-service";
@@ -51,8 +51,8 @@ export default function CourseCurriculumPage() {
 
     async function carregarDados() {
       try {
-        const [cursos, modulosDoCurso, minhasMatriculas] = await Promise.all([
-          listCourses(),
+        const [curso, modulosDoCurso, minhasMatriculas] = await Promise.all([
+          getCourse(courseId),
           listModulesByCourse(courseId),
           listMyEnrollments(),
         ]);
@@ -63,7 +63,7 @@ export default function CourseCurriculumPage() {
 
         if (!isMounted) return;
 
-        setCourse(cursos.find((c) => c.id === courseId) ?? null);
+        setCourse(curso);
         setModules(
           modulosDoCurso.map((modulo, index) => ({
             ...modulo,
@@ -141,9 +141,7 @@ export default function CourseCurriculumPage() {
         <p className="text-muted-foreground">{course.instructorName}</p>
       </div>
 
-      <p className="mt-4 text-sm text-muted-foreground">
-        {course.description}
-      </p>
+      <p className="mt-4 text-sm text-muted-foreground">{course.description}</p>
 
       {isEnrolled ? (
         <div className="mt-6 space-y-2">
