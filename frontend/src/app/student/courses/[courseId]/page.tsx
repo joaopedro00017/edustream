@@ -159,6 +159,7 @@ export default function CourseCurriculumPage() {
           <AlertTitle>Você ainda não está matriculado neste curso</AlertTitle>
           <AlertDescription>
             <Button
+              nativeButton={false}
               render={<Link href="/student/courses" />}
               variant="link"
               className="h-auto p-0"
@@ -190,6 +191,7 @@ export default function CourseCurriculumPage() {
                         <li key={aula.id}>
                           {isEnrolled ? (
                             <Button
+                              nativeButton={false}
                               render={
                                 <Link
                                   href={`/student/player/${aula.id}?courseId=${courseId}`}

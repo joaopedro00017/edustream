@@ -187,6 +187,7 @@ export default function InstructorCoursesPage() {
                   </TableCell>
                   <TableCell className="text-right">
                     <Button
+                      nativeButton={false}
                       render={
                         <Link href={`/instructor/courses/${course.id}`} />
                       }

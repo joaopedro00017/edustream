@@ -8,7 +8,7 @@ import { toast } from "sonner";
 import { CheckCircle2, CircleAlert } from "lucide-react";
 import { getLesson } from "@/lib/lessons/lesson-service";
 import { markLessonAsWatched } from "@/lib/lessons/lesson-progress-service";
-import { listCourses } from "@/lib/courses/course-service";
+import { getCourse } from "@/lib/courses/course-service";
 import { parseVideoUrl } from "@/lib/video";
 import type { Lesson } from "@/types/lesson.types";
 import type { ApiErrorResponse } from "@/types/api.types";
@@ -44,18 +44,14 @@ export default function LessonPlayerPage() {
 
     async function carregarDados() {
       try {
-        const [aula, cursos] = await Promise.all([
+        const [aula, curso] = await Promise.all([
           getLesson(lessonId),
-          courseId ? listCourses() : Promise.resolve(null),
+          courseId ? getCourse(courseId) : Promise.resolve(null),
         ]);
         if (!isMounted) return;
 
         setLesson(aula);
-        if (cursos) {
-          setCourseTitle(
-            cursos.find((curso) => curso.id === courseId)?.title ?? null,
-          );
-        }
+        setCourseTitle(curso?.title ?? null);
       } catch (error) {
         console.error("Erro ao buscar a aula", error);
         if (isMounted) setHasLoadError(true);
@@ -177,6 +173,7 @@ export default function LessonPlayerPage() {
           <AlertDescription>
             {accessDeniedMessage}{" "}
             <Button
+              nativeButton={false}
               render={<Link href="/student/courses" />}
               variant="link"
               className="h-auto p-0"
