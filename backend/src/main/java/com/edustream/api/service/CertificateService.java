@@ -7,10 +7,11 @@ import com.edustream.api.domain.model.User;
 import com.edustream.api.domain.repository.CertificateRepository;
 import com.edustream.api.dto.CertificateResponseDTO;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
-import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -30,17 +31,15 @@ public class CertificateService {
         certificateRepository.save(certificate);
     }
 
-    public List<CertificateResponseDTO> listarMeusCertificados(User user){
-        List<Certificate> certificados = certificateRepository.findByUserId(user.getId());
-
-        return certificados.stream()
+    public Page<CertificateResponseDTO> listarMeusCertificados(User user, Pageable pageable){
+        return certificateRepository.findByUserId(user.getId(), pageable)
                 .map(cert -> new CertificateResponseDTO(
                         cert.getId(),
                         cert.getUser().getName(),
                         cert.getCourse().getTitle(),
                         cert.getGenerateAt(),
                         cert.getValidationHash()
-                )).toList();
+                ));
     }
 
     public CertificateResponseDTO validarCertificado(String hash){

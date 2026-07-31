@@ -10,6 +10,8 @@ import com.edustream.api.domain.repository.LessonProgressRepository;
 import com.edustream.api.dto.CourseRequestDTO;
 import com.edustream.api.dto.CourseResponseDTO;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -31,8 +33,9 @@ public class CourseService {
         return new CourseResponseDTO(cursoSalvo.getId(), cursoSalvo.getTitle(), cursoSalvo.getDescription(), cursoSalvo.getUser().getName());
     }
 
-    public List<CourseResponseDTO> listarCursos(){
-        return courseRepository.findAll().stream().map(curso -> new CourseResponseDTO(curso.getId(), curso.getTitle(), curso.getDescription(), curso.getUser().getName())).toList();
+    public Page<CourseResponseDTO> listarCursos(Pageable pageable){
+        return courseRepository.findAll(pageable)
+                .map(curso -> new CourseResponseDTO(curso.getId(), curso.getTitle(), curso.getDescription(), curso.getUser().getName()));
     }
 
     public CourseResponseDTO buscarCurso(UUID id) {
