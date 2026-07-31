@@ -22,11 +22,22 @@ import {
 } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
 import { useRouter } from "next/navigation";
 
 export default function StudentCoursesPage() {
   const router = useRouter();
+  const [page, setPage] = useState(0);
   const [courses, setCourses] = useState<Course[]>([]);
+  const [totalPages, setTotalPages] = useState(0);
+  const [isFirstPage, setIsFirstPage] = useState(true);
+  const [isLastPage, setIsLastPage] = useState(true);
   const [enrolledCourseIds, setEnrolledCourseIds] = useState<Set<string>>(
     new Set(),
   );
@@ -39,13 +50,16 @@ export default function StudentCoursesPage() {
 
     async function carregarDados() {
       try {
-        const [todosOsCursos, minhasMatriculas] = await Promise.all([
-          listCourses(),
+        const [cursosPaginados, minhasMatriculas] = await Promise.all([
+          listCourses(page),
           listMyEnrollments(),
         ]);
         if (!isMounted) return;
 
-        setCourses(todosOsCursos);
+        setCourses(cursosPaginados.content);
+        setTotalPages(cursosPaginados.totalPages);
+        setIsFirstPage(cursosPaginados.first);
+        setIsLastPage(cursosPaginados.last);
         setEnrolledCourseIds(
           new Set(minhasMatriculas.map((matricula) => matricula.courseId)),
         );
@@ -61,7 +75,7 @@ export default function StudentCoursesPage() {
     return () => {
       isMounted = false;
     };
-  }, []);
+  }, [page]);
 
   async function handleEnroll(course: Course) {
     setSubmittingId(course.id);
@@ -159,6 +173,50 @@ export default function StudentCoursesPage() {
             );
           })}
         </div>
+      )}
+
+      {!isLoading && totalPages > 1 && (
+        <Pagination className="mt-8">
+          <PaginationContent>
+            <PaginationItem>
+              <PaginationPrevious
+                href="#"
+                aria-disabled={isFirstPage}
+                className={
+                  isFirstPage ? "pointer-events-none opacity-50" : undefined
+                }
+                onClick={(event) => {
+                  event.preventDefault();
+                  if (!isFirstPage) {
+                    setIsLoading(true);
+                    setPage((previous) => previous - 1);
+                  }
+                }}
+              />
+            </PaginationItem>
+            <PaginationItem>
+              <span className="px-4 text-sm text-muted-foreground">
+                Página {page + 1} de {totalPages}
+              </span>
+            </PaginationItem>
+            <PaginationItem>
+              <PaginationNext
+                href="#"
+                aria-disabled={isLastPage}
+                className={
+                  isLastPage ? "pointer-events-none opacity-50" : undefined
+                }
+                onClick={(event) => {
+                  event.preventDefault();
+                  if (!isLastPage) {
+                    setIsLoading(true);
+                    setPage((previous) => previous + 1);
+                  }
+                }}
+              />
+            </PaginationItem>
+          </PaginationContent>
+        </Pagination>
       )}
     </div>
   );

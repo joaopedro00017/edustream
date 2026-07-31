@@ -1,9 +1,12 @@
 import { apiClient } from "@/lib/http/api-client";
 import type { Course, CourseRequest } from "@/types/course.types";
+import type { PagedResponse } from "@/types/api.types";
 
 // Rota pública para os alunos
-export const listCourses = () =>
-  apiClient.get<Course[]>("/courses").then((response) => response.data);
+export const listCourses = (page = 0, size = 12) =>
+  apiClient
+    .get<PagedResponse<Course>>("/courses", { params: { page, size } })
+    .then((response) => response.data);
 
 // Rota Exclusiva para Instrutores
 export const listMyCourses = () =>
