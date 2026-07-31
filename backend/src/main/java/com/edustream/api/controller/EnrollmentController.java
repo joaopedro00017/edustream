@@ -1,6 +1,7 @@
 package com.edustream.api.controller;
 
 import com.edustream.api.domain.model.User;
+import com.edustream.api.dto.EnrolledStudentDTO;
 import com.edustream.api.dto.EnrollmentResponseDTO;
 import com.edustream.api.service.EnrollmentService;
 import lombok.RequiredArgsConstructor;
@@ -31,6 +32,13 @@ public class EnrollmentController {
     @PreAuthorize("hasRole('STUDENT')")
     public ResponseEntity<List<EnrollmentResponseDTO>> listarMeusCursos(@AuthenticationPrincipal User user) {
         List<EnrollmentResponseDTO> resposta = enrollmentService.listarMinhasMatriculas(user);
+        return ResponseEntity.ok(resposta);
+    }
+
+    @GetMapping("/course/{courseId}")
+    @PreAuthorize("hasRole('INSTRUCTOR')")
+    public ResponseEntity<List<EnrolledStudentDTO>> listarAlunosMatriculados(@PathVariable UUID courseId, @AuthenticationPrincipal User user) {
+        List<EnrolledStudentDTO> resposta = enrollmentService.listarAlunosMatriculados(courseId, user);
         return ResponseEntity.ok(resposta);
     }
 }

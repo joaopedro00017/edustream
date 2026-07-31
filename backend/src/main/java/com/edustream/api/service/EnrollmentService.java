@@ -6,7 +6,9 @@ import com.edustream.api.domain.model.User;
 import com.edustream.api.domain.repository.CourseRepository;
 import com.edustream.api.domain.repository.EnrollmentRepository;
 import com.edustream.api.domain.exception.ConflictException;
+import com.edustream.api.domain.exception.CustomAccessDeniedException;
 import com.edustream.api.domain.exception.ResourceNotFoundException;
+import com.edustream.api.dto.EnrolledStudentDTO;
 import com.edustream.api.dto.EnrollmentResponseDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -57,6 +59,24 @@ public class EnrollmentService {
                         m.getCourse().getId(),
                         m.getCourse().getTitle(),
                         m.getEnrollmentDate(),
+                        m.getProgress()
+                )).toList();
+    }
+
+    public List<EnrolledStudentDTO> listarAlunosMatriculados(UUID courseId, User instructor) {
+        Course course = courseRepository.findById(courseId)
+                .orElseThrow(() -> new ResourceNotFoundException("Curso não encontrado"));
+        if (!course.getUser().getId().equals(instructor.getId())) {
+            throw new CustomAccessDeniedException("Acesso negado, apenas o instrutor dono do curso pode ver os alunos matriculados.");
+        }
+
+        List<Enrollment> matriculas = enrollmentRepository.findByCourseId(courseId);
+
+        return matriculas.stream()
+                .map(m -> new EnrolledStudentDTO(
+                        m.getUser().getId(),
+                        m.getUser().getName(),
+                        m.getUser().getEmail(),
                         m.getProgress()
                 )).toList();
     }

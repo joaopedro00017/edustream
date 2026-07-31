@@ -7,6 +7,7 @@ import com.edustream.api.domain.exception.ResourceNotFoundException;
 import com.edustream.api.dto.RestErrorDTO;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -26,6 +27,13 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(CustomAccessDeniedException.class)
     public ResponseEntity<RestErrorDTO> handleAccessDenied(CustomAccessDeniedException exception) {
         RestErrorDTO errorDTO = new RestErrorDTO(Instant.now(), exception.getMessage());
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(errorDTO);
+    }
+
+    // Captura quando @PreAuthorize barra o acesso por causa da role do usuário (Status 403)
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<RestErrorDTO> handleSpringAccessDenied(AccessDeniedException exception) {
+        RestErrorDTO errorDTO = new RestErrorDTO(Instant.now(), "Acesso negado.");
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(errorDTO);
     }
 
