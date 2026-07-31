@@ -15,8 +15,10 @@ import {
   createModule,
   listModulesByCourse,
 } from "@/lib/modules/module-service";
+import { listCourseEnrollments } from "@/lib/enrollments/enrollment-service";
 import type { Course } from "@/types/course.types";
 import type { CourseModule } from "@/types/module.types";
+import type { EnrolledStudent } from "@/types/enrollment.types";
 import type { ApiErrorResponse } from "@/types/api.types";
 import { Button } from "@/components/ui/button";
 import {
@@ -59,6 +61,16 @@ import {
 } from "@/components/ui/breadcrumb";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Progress } from "@/components/ui/progress";
 
 export default function InstructorCourseDetailPage() {
   const { courseId } = useParams<{ courseId: string }>();
@@ -66,6 +78,9 @@ export default function InstructorCourseDetailPage() {
 
   const [course, setCourse] = useState<Course | null>(null);
   const [modules, setModules] = useState<CourseModule[]>([]);
+  const [enrolledStudents, setEnrolledStudents] = useState<EnrolledStudent[]>(
+    [],
+  );
   const [isLoading, setIsLoading] = useState(true);
   const [hasLoadError, setHasLoadError] = useState(false);
 
@@ -83,10 +98,15 @@ export default function InstructorCourseDetailPage() {
   const [isCreatingModule, setIsCreatingModule] = useState(false);
 
   useEffect(() => {
-    Promise.all([getCourse(courseId), listModulesByCourse(courseId)])
-      .then(([cursoAtual, modulosDoCurso]) => {
+    Promise.all([
+      getCourse(courseId),
+      listModulesByCourse(courseId),
+      listCourseEnrollments(courseId),
+    ])
+      .then(([cursoAtual, modulosDoCurso, alunosMatriculados]) => {
         setCourse(cursoAtual);
         setModules(modulosDoCurso);
+        setEnrolledStudents(alunosMatriculados);
         setEditTitle(cursoAtual.title);
         setEditDescription(cursoAtual.description);
       })
@@ -284,85 +304,141 @@ export default function InstructorCourseDetailPage() {
         </div>
       </div>
 
-      <div className="mt-10 flex items-center justify-between gap-4">
-        <h2 className="text-lg font-semibold text-foreground">Módulos</h2>
+      <Tabs defaultValue="modulos" className="mt-10">
+        <TabsList>
+          <TabsTrigger value="modulos">Módulos</TabsTrigger>
+          <TabsTrigger value="alunos">Alunos matriculados</TabsTrigger>
+        </TabsList>
 
-        <Dialog open={isModuleDialogOpen} onOpenChange={setIsModuleDialogOpen}>
-          <DialogTrigger render={<Button size="sm" />}>
-            <Plus />
-            Novo módulo
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Novo módulo</DialogTitle>
-            </DialogHeader>
-            <form onSubmit={handleCreateModule} className="space-y-4">
-              <div className="space-y-1.5">
-                <Label htmlFor="module-title">Título</Label>
-                <Input
-                  id="module-title"
-                  required
-                  value={moduleTitle}
-                  onChange={(event) => setModuleTitle(event.target.value)}
-                />
-              </div>
-              <div className="space-y-1.5">
-                <Label htmlFor="module-description">Descrição</Label>
-                <Textarea
-                  id="module-description"
-                  required
-                  value={moduleDescription}
-                  onChange={(event) =>
-                    setModuleDescription(event.target.value)
-                  }
-                />
-              </div>
-              <DialogFooter>
-                <DialogClose render={<Button type="button" variant="outline" />}>
-                  Cancelar
-                </DialogClose>
-                <Button type="submit" disabled={isCreatingModule}>
-                  {isCreatingModule ? "Criando..." : "Criar módulo"}
-                </Button>
-              </DialogFooter>
-            </form>
-          </DialogContent>
-        </Dialog>
-      </div>
+        <TabsContent value="modulos">
+          <div className="flex items-center justify-between gap-4">
+            <h2 className="text-lg font-semibold text-foreground">Módulos</h2>
 
-      <div className="mt-4 space-y-3">
-        {modules.length === 0 ? (
-          <p className="text-muted-foreground">
-            Nenhum módulo criado ainda.
-          </p>
-        ) : (
-          modules.map((modulo) => (
-            <Card key={modulo.id}>
-              <CardHeader>
-                <CardTitle>{modulo.title}</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="line-clamp-2 text-sm text-muted-foreground">
-                  {modulo.description}
-                </p>
-              </CardContent>
-              <CardFooter>
-                <Button
-                  render={
-                    <Link
-                      href={`/instructor/courses/${courseId}/modules/${modulo.id}`}
+            <Dialog
+              open={isModuleDialogOpen}
+              onOpenChange={setIsModuleDialogOpen}
+            >
+              <DialogTrigger render={<Button size="sm" />}>
+                <Plus />
+                Novo módulo
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Novo módulo</DialogTitle>
+                </DialogHeader>
+                <form onSubmit={handleCreateModule} className="space-y-4">
+                  <div className="space-y-1.5">
+                    <Label htmlFor="module-title">Título</Label>
+                    <Input
+                      id="module-title"
+                      required
+                      value={moduleTitle}
+                      onChange={(event) =>
+                        setModuleTitle(event.target.value)
+                      }
                     />
-                  }
-                  variant="outline"
-                  className="w-full"
-                >
-                  Gerenciar aulas
-                </Button>
-              </CardFooter>
-            </Card>
-          ))
-        )}
-      </div>
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label htmlFor="module-description">Descrição</Label>
+                    <Textarea
+                      id="module-description"
+                      required
+                      value={moduleDescription}
+                      onChange={(event) =>
+                        setModuleDescription(event.target.value)
+                      }
+                    />
+                  </div>
+                  <DialogFooter>
+                    <DialogClose
+                      render={<Button type="button" variant="outline" />}
+                    >
+                      Cancelar
+                    </DialogClose>
+                    <Button type="submit" disabled={isCreatingModule}>
+                      {isCreatingModule ? "Criando..." : "Criar módulo"}
+                    </Button>
+                  </DialogFooter>
+                </form>
+              </DialogContent>
+            </Dialog>
+          </div>
+
+          <div className="mt-4 space-y-3">
+            {modules.length === 0 ? (
+              <p className="text-muted-foreground">
+                Nenhum módulo criado ainda.
+              </p>
+            ) : (
+              modules.map((modulo) => (
+                <Card key={modulo.id}>
+                  <CardHeader>
+                    <CardTitle>{modulo.title}</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="line-clamp-2 text-sm text-muted-foreground">
+                      {modulo.description}
+                    </p>
+                  </CardContent>
+                  <CardFooter>
+                    <Button
+                      nativeButton={false}
+                      render={
+                        <Link
+                          href={`/instructor/courses/${courseId}/modules/${modulo.id}`}
+                        />
+                      }
+                      variant="outline"
+                      className="w-full"
+                    >
+                      Gerenciar aulas
+                    </Button>
+                  </CardFooter>
+                </Card>
+              ))
+            )}
+          </div>
+        </TabsContent>
+
+        <TabsContent value="alunos">
+          {enrolledStudents.length === 0 ? (
+            <p className="text-muted-foreground">
+              Nenhum aluno matriculado neste curso ainda.
+            </p>
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Nome</TableHead>
+                  <TableHead>E-mail</TableHead>
+                  <TableHead>Progresso</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {enrolledStudents.map((aluno) => (
+                  <TableRow key={aluno.studentId}>
+                    <TableCell>{aluno.studentName}</TableCell>
+                    <TableCell className="text-muted-foreground">
+                      {aluno.studentEmail}
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-2">
+                        <Progress
+                          value={aluno.progress}
+                          className="w-32"
+                        />
+                        <span className="text-sm text-muted-foreground">
+                          {Math.round(aluno.progress)}%
+                        </span>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          )}
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }

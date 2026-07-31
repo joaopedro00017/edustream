@@ -5,3 +5,10 @@ export interface Enrollment {
   enrollmentDate: string;
   progress: number;
 }
+
+export interface EnrolledStudent {
+  studentId: string;
+  studentName: string;
+  studentEmail: string;
+  progress: number;
+}
