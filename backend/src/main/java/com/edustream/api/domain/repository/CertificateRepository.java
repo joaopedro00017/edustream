@@ -11,4 +11,5 @@ import java.util.UUID;
 public interface CertificateRepository extends JpaRepository<Certificate, UUID> {
     Optional<Certificate> findByValidationHash (String validationHash);
     Page<Certificate> findByUserId(UUID userId, Pageable pageable);
+    boolean existsByUserIdAndCourseId(UUID userId, UUID courseId);
 }

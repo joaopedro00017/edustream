@@ -20,6 +20,10 @@ public class CertificateService {
     private final CertificateRepository certificateRepository;
 
     public void emitirCertificado(User user, Course course){
+        if (certificateRepository.existsByUserIdAndCourseId(user.getId(), course.getId())) {
+            return;
+        }
+
         Certificate certificate = new Certificate();
         certificate.setUser(user);
         certificate.setCourse(course);
