@@ -1,6 +1,5 @@
 package com.edustream.api.controller;
 
-import com.edustream.api.domain.model.Lesson;
 import com.edustream.api.domain.model.User;
 import com.edustream.api.dto.LessonResponseDTO;
 import com.edustream.api.service.LessonProgressService;

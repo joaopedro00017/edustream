@@ -1,6 +1,5 @@
 package com.edustream.api.config;
 
-import com.edustream.api.domain.model.User;
 import com.edustream.api.domain.repository.UserRepository;
 import com.edustream.api.service.TokenService;
 import jakarta.servlet.FilterChain;
@@ -30,13 +29,13 @@ public class SecurityFilter extends OncePerRequestFilter {
         if (token != null) {
             String email = tokenService.validateToken(token);
             if (email != null) {
-                User user = userRepository.findByEmail(email)
-                        .orElseThrow(() -> new RuntimeException("Usuário não encontrado no sistema!"));
-                var authorities = user.getRoles().stream()
-                        .map(role -> new SimpleGrantedAuthority(role.getName().name()))
-                        .collect(Collectors.toList());
-                var authentication = new UsernamePasswordAuthenticationToken(user, null, authorities);
-                SecurityContextHolder.getContext().setAuthentication(authentication);
+                userRepository.findByEmail(email).ifPresent(user -> {
+                    var authorities = user.getRoles().stream()
+                            .map(role -> new SimpleGrantedAuthority(role.getName().name()))
+                            .collect(Collectors.toList());
+                    var authentication = new UsernamePasswordAuthenticationToken(user, null, authorities);
+                    SecurityContextHolder.getContext().setAuthentication(authentication);
+                });
             }
         }
 
