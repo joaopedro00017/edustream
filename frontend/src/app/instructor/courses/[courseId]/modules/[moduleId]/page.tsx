@@ -1,12 +1,12 @@
 "use client";
 
-import { useEffect, useState, type FormEvent } from "react";
+import { useEffect, useRef, useState, type FormEvent } from "react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { AxiosError } from "axios";
 import { toast } from "sonner";
-import { CircleAlert, Pencil, Plus, Trash2 } from "lucide-react";
-import { listMyCourses } from "@/lib/courses/course-service";
+import { CircleAlert, Loader2, Pencil, Plus, Trash2 } from "lucide-react";
+import { getCourse } from "@/lib/courses/course-service";
 import {
   deleteModule,
   listModulesByCourse,
@@ -18,6 +18,11 @@ import {
   listLessonsByModule,
   updateLesson,
 } from "@/lib/lessons/lesson-service";
+import {
+  fetchYoutubePreview,
+  type YoutubePreview,
+} from "@/lib/lessons/youtube-preview";
+import { parseVideoUrl } from "@/lib/video";
 import type { Course } from "@/types/course.types";
 import type { CourseModule } from "@/types/module.types";
 import type { Lesson } from "@/types/lesson.types";
@@ -93,18 +98,24 @@ export default function InstructorModuleDetailPage() {
   const [lessonForm, setLessonForm] = useState(EMPTY_LESSON_FORM);
   const [isSavingLesson, setIsSavingLesson] = useState(false);
 
+  const [videoPreview, setVideoPreview] = useState<YoutubePreview | null>(
+    null,
+  );
+  const [isCheckingVideo, setIsCheckingVideo] = useState(false);
+  const latestVideoUrlRef = useRef<string | null>(null);
+
   const [deletingLessonId, setDeletingLessonId] = useState<string | null>(
     null,
   );
 
   useEffect(() => {
     Promise.all([
-      listMyCourses(),
+      getCourse(courseId),
       listModulesByCourse(courseId),
       listLessonsByModule(moduleId),
     ])
-      .then(([cursos, modulosDoCurso, aulasDoModulo]) => {
-        setCourse(cursos.find((c) => c.id === courseId) ?? null);
+      .then(([curso, modulosDoCurso, aulasDoModulo]) => {
+        setCourse(curso);
         const moduloAtual =
           modulosDoCurso.find((m) => m.id === moduleId) ?? null;
         setCourseModule(moduloAtual);
@@ -120,6 +131,31 @@ export default function InstructorModuleDetailPage() {
       })
       .finally(() => setIsLoading(false));
   }, [courseId, moduleId]);
+
+  const videoKind = parseVideoUrl(lessonForm.videoUrl).kind;
+
+  useEffect(() => {
+    if (videoKind !== "youtube") return;
+
+    const requestedUrl = lessonForm.videoUrl;
+    const timer = setTimeout(() => {
+      latestVideoUrlRef.current = requestedUrl;
+      setIsCheckingVideo(true);
+
+      fetchYoutubePreview(requestedUrl)
+        .then((preview) => {
+          if (latestVideoUrlRef.current !== requestedUrl) return;
+          setVideoPreview(preview);
+        })
+        .finally(() => {
+          if (latestVideoUrlRef.current === requestedUrl) {
+            setIsCheckingVideo(false);
+          }
+        });
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [lessonForm.videoUrl, videoKind]);
 
   async function handleUpdateModule(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -165,6 +201,7 @@ export default function InstructorModuleDetailPage() {
   function openCreateLessonDialog() {
     setEditingLesson(null);
     setLessonForm(EMPTY_LESSON_FORM);
+    setVideoPreview(null);
     setIsLessonDialogOpen(true);
   }
 
@@ -427,6 +464,37 @@ export default function InstructorModuleDetailPage() {
                     }))
                   }
                 />
+
+                {videoKind === "youtube" && isCheckingVideo && (
+                  <p className="flex items-center gap-1.5 text-sm text-muted-foreground">
+                    <Loader2 className="size-3.5 animate-spin" />
+                    Verificando vídeo...
+                  </p>
+                )}
+
+                {videoKind === "youtube" &&
+                  !isCheckingVideo &&
+                  videoPreview && (
+                    <div className="flex items-center gap-3">
+                      <img
+                        src={videoPreview.thumbnailUrl}
+                        alt={videoPreview.title}
+                        className="h-16 w-28 rounded-md object-cover"
+                      />
+                      <p className="text-sm text-muted-foreground">
+                        {videoPreview.title}
+                      </p>
+                    </div>
+                  )}
+
+                {videoKind === "youtube" &&
+                  !isCheckingVideo &&
+                  !videoPreview &&
+                  lessonForm.videoUrl && (
+                    <p className="text-sm text-destructive">
+                      Não encontramos esse vídeo no YouTube.
+                    </p>
+                  )}
               </div>
               <DialogFooter>
                 <DialogClose
