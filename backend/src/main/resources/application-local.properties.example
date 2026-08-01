@@ -1,0 +1,17 @@
+spring.datasource.url=jdbc:postgresql://localhost:5432/edustream
+spring.datasource.username=postgres
+spring.datasource.password=
+
+spring.datasource.driver-class-name=org.postgresql.Driver
+spring.jpa.database-platform=org.hibernate.dialect.PostgreSQLDialect
+
+spring.jpa.hibernate.ddl-auto=update
+spring.jpa.show-sql=true
+spring.jpa.properties.hibernate.format_sql=true
+
+# ==========================================
+# CONFIGURAÇÕES DE SEGURANÇA (JWT)
+# ==========================================
+# Qualquer string longa serve em desenvolvimento — nunca reutilize esse valor em produção.
+jwt.secret=troque-por-uma-string-longa-e-aleatoria
+jwt.expiration=7200000

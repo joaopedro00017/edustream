@@ -5,9 +5,7 @@
 
 # Backend
 **/target/
-**/.mvn/
-**/mvnw
-**/mvnw.cmd
+**/.mvn/wrapper/maven-wrapper.jar
 
 # Frontend
 **/node_modules/
