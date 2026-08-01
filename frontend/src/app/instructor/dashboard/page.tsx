@@ -109,7 +109,7 @@ export default function InstructorDashboardPage() {
           label="Taxa de conclusão média"
           value={
             metrics
-              ? `${(metrics.taxaDeConclusaoMedia * 100).toFixed(0)}%`
+              ? `${metrics.taxaDeConclusaoMedia.toFixed(0)}%`
               : undefined
           }
         />
