@@ -12,27 +12,18 @@ interface ProtectedRouteProps {
   allowedRoles?: Role[];
 }
 
-/**
- * Guarda client-side. Não usamos o Middleware do Next.js aqui porque a sessão
- * vive em localStorage (o backend é stateless e não emite cookies), algo que
- * o Middleware — executado no Edge — não consegue ler.
- *
- * O `hasMounted` é proposital, mesmo o AuthContext já usando
- * useSyncExternalStore para evitar mismatch de hidratação: em desenvolvimento
- * o React StrictMode invoca o efeito de redirect duas vezes de propósito
- * (monta → desmonta → monta), e a primeira invocação pode rodar antes do
- * snapshot real do localStorage se assentar, disparando um redirect pro
- * login mesmo com sessão válida (reproduzido dando F5 numa rota protegida).
- * Esperar um ciclo de efeito extra garante que a decisão de redirecionar só
- * roda depois que tudo já estabilizou.
- */
+// Guarda client-side, não Middleware: a sessão vive em localStorage, e o
+// Middleware roda no Edge, onde não há acesso a ela.
 export function ProtectedRoute({ children, allowedRoles }: ProtectedRouteProps) {
   const { isAuthenticated, hasRole } = useAuth();
   const router = useRouter();
   const [hasMounted, setHasMounted] = useState(false);
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- ver comentário do componente
+    // StrictMode roda esse efeito 2x em dev; sem esperar esse ciclo, a 1a
+    // passada pode disparar antes do localStorage assentar e chutar um
+    // usuário autenticado pro login (reproduz dando F5 na rota protegida).
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setHasMounted(true);
   }, []);
 

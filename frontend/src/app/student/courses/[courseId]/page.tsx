@@ -47,8 +47,6 @@ export default function CourseCurriculumPage() {
   const [hasLoadError, setHasLoadError] = useState(false);
 
   useEffect(() => {
-    let isMounted = true;
-
     async function carregarDados() {
       try {
         const [curso, modulosDoCurso, minhasMatriculas] = await Promise.all([
@@ -60,8 +58,6 @@ export default function CourseCurriculumPage() {
         const aulasPorModulo = await Promise.all(
           modulosDoCurso.map((modulo) => listLessonsByModule(modulo.id)),
         );
-
-        if (!isMounted) return;
 
         setCourse(curso);
         setModules(
@@ -75,16 +71,13 @@ export default function CourseCurriculumPage() {
         );
       } catch (error) {
         console.error("Erro ao buscar currículo do curso", error);
-        if (isMounted) setHasLoadError(true);
+        setHasLoadError(true);
       } finally {
-        if (isMounted) setIsLoading(false);
+        setIsLoading(false);
       }
     }
 
     carregarDados();
-    return () => {
-      isMounted = false;
-    };
   }, [courseId]);
 
   if (isLoading) {

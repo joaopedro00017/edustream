@@ -36,8 +36,6 @@ export default function StudentCoursesPage() {
   const [page, setPage] = useState(0);
   const [courses, setCourses] = useState<Course[]>([]);
   const [totalPages, setTotalPages] = useState(0);
-  const [isFirstPage, setIsFirstPage] = useState(true);
-  const [isLastPage, setIsLastPage] = useState(true);
   const [enrolledCourseIds, setEnrolledCourseIds] = useState<Set<string>>(
     new Set(),
   );
@@ -45,36 +43,31 @@ export default function StudentCoursesPage() {
   const [hasLoadError, setHasLoadError] = useState(false);
   const [submittingId, setSubmittingId] = useState<string | null>(null);
 
-  useEffect(() => {
-    let isMounted = true;
+  const isFirstPage = page === 0;
+  const isLastPage = page >= totalPages - 1;
 
+  useEffect(() => {
     async function carregarDados() {
       try {
         const [cursosPaginados, minhasMatriculas] = await Promise.all([
           listCourses(page),
           listMyEnrollments(),
         ]);
-        if (!isMounted) return;
 
         setCourses(cursosPaginados.content);
         setTotalPages(cursosPaginados.totalPages);
-        setIsFirstPage(cursosPaginados.first);
-        setIsLastPage(cursosPaginados.last);
         setEnrolledCourseIds(
           new Set(minhasMatriculas.map((matricula) => matricula.courseId)),
         );
       } catch (error) {
         console.error("Erro ao buscar o catálogo de cursos", error);
-        if (isMounted) setHasLoadError(true);
+        setHasLoadError(true);
       } finally {
-        if (isMounted) setIsLoading(false);
+        setIsLoading(false);
       }
     }
 
     carregarDados();
-    return () => {
-      isMounted = false;
-    };
   }, [page]);
 
   async function handleEnroll(course: Course) {
@@ -102,8 +95,8 @@ export default function StudentCoursesPage() {
           Catálogo de cursos
         </h1>
         <p className="text-muted-foreground">
-          Aqui você encontrará cursos disponíveis de acordo com os melhores
-          instrutores do site.
+          Aqui você encontrará cursos íncriveis e instrutores altamente
+          capacitados para a sua demanda.
         </p>
       </div>
 

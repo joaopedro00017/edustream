@@ -27,33 +27,23 @@ export default function StudentCertificatesPage() {
   const [page, setPage] = useState(0);
   const [certificates, setCertificates] = useState<Certificate[]>([]);
   const [totalPages, setTotalPages] = useState(0);
-  const [isFirstPage, setIsFirstPage] = useState(true);
-  const [isLastPage, setIsLastPage] = useState(true);
   const [isLoading, setIsLoading] = useState(true);
   const [hasLoadError, setHasLoadError] = useState(false);
 
-  useEffect(() => {
-    let isMounted = true;
+  const isFirstPage = page === 0;
+  const isLastPage = page >= totalPages - 1;
 
+  useEffect(() => {
     listMyCertificates(page)
       .then((data) => {
-        if (!isMounted) return;
         setCertificates(data.content);
         setTotalPages(data.totalPages);
-        setIsFirstPage(data.first);
-        setIsLastPage(data.last);
       })
       .catch((error) => {
         console.error("Erro ao buscar certificados", error);
-        if (isMounted) setHasLoadError(true);
+        setHasLoadError(true);
       })
-      .finally(() => {
-        if (isMounted) setIsLoading(false);
-      });
-
-    return () => {
-      isMounted = false;
-    };
+      .finally(() => setIsLoading(false));
   }, [page]);
 
   return (

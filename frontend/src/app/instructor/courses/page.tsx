@@ -44,23 +44,13 @@ export default function InstructorCoursesPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
-    let isMounted = true;
-
     listMyCourses()
-      .then((data) => {
-        if (isMounted) setCourses(data);
-      })
+      .then((data) => setCourses(data))
       .catch((error) => {
         console.error("Erro ao buscar meus cursos", error);
-        if (isMounted) setHasLoadError(true);
+        setHasLoadError(true);
       })
-      .finally(() => {
-        if (isMounted) setIsLoading(false);
-      });
-
-    return () => {
-      isMounted = false;
-    };
+      .finally(() => setIsLoading(false));
   }, []);
 
   async function handleCreateCourse(event: FormEvent<HTMLFormElement>) {

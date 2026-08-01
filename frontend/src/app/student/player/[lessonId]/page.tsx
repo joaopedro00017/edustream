@@ -40,30 +40,24 @@ export default function LessonPlayerPage() {
   const [isWatched, setIsWatched] = useState(false);
 
   useEffect(() => {
-    let isMounted = true;
-
     async function carregarDados() {
       try {
         const [aula, curso] = await Promise.all([
           getLesson(lessonId),
           courseId ? getCourse(courseId) : Promise.resolve(null),
         ]);
-        if (!isMounted) return;
 
         setLesson(aula);
         setCourseTitle(curso?.title ?? null);
       } catch (error) {
         console.error("Erro ao buscar a aula", error);
-        if (isMounted) setHasLoadError(true);
+        setHasLoadError(true);
       } finally {
-        if (isMounted) setIsLoading(false);
+        setIsLoading(false);
       }
     }
 
     carregarDados();
-    return () => {
-      isMounted = false;
-    };
   }, [lessonId, courseId]);
 
   async function handleMarkAsWatched() {
