@@ -16,6 +16,9 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "EduStream",
   description: "Plataforma de streaming de cursos",
+  icons: {
+    icon: "/icons/graduation-cap.svg",
+  },
 };
 
 export default function RootLayout({

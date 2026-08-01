@@ -7,6 +7,13 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
 import { ROLES } from "@/types/auth.types";
 import type { ApiErrorResponse } from "@/types/api.types";
+import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { PasswordInput } from "@/components/ui/password-input";
+
+const fieldClass =
+  "w-full rounded-lg border border-border bg-surface-elevated py-2.5 pl-3.5 pr-3.5 text-sm text-foreground outline-none transition-colors placeholder:text-muted-foreground focus:border-primary";
 
 export default function LoginPage() {
   const { login } = useAuth();
@@ -33,69 +40,112 @@ export default function LoginPage() {
         err instanceof AxiosError
           ? (err.response?.data as ApiErrorResponse | undefined)?.message
           : undefined;
-      setError(message ?? "Não foi possível entrar. Verifique suas credenciais.");
+      setError(
+        message ?? "Não foi possível entrar. Verifique suas credenciais.",
+      );
     } finally {
       setIsSubmitting(false);
     }
   }
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-background px-4">
-      <div className="w-full max-w-sm space-y-6 rounded-xl border border-border bg-surface p-8">
-        <div className="space-y-1 text-center">
-          <h1 className="text-2xl font-semibold text-foreground">Entrar</h1>
-          <p className="text-sm text-muted-foreground">Acesse sua conta EduStream</p>
+    <div className="grid min-h-screen lg:grid-cols-[0.6fr_1.4fr]">
+      <div className="relative hidden flex-col justify-between overflow-hidden border-r border-border p-12 lg:flex">
+        <div className="pointer-events-none absolute -top-24 -left-24 size-96 rounded-full bg-primary/10 blur-3xl" />
+
+        <Link href="/" className="z-10 flex w-fit items-center gap-2">
+          <img src="/icons/graduation-cap.svg" alt="" className="size-5.5" />
+          <span className="text-lg font-semibold tracking-tight text-foreground">
+            EduStream
+          </span>
+        </Link>
+
+        <div className="z-10">
+          <h2 className="mb-2.5 text-2xl font-semibold tracking-tight text-foreground">
+            Continue de onde parou.
+          </h2>
+          <p className="max-w-80 text-sm leading-relaxed text-muted-foreground">
+            Suas aulas e certificados estão te esperando.
+          </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-1">
-            <label htmlFor="email" className="text-sm text-muted-foreground">
-              E-mail
-            </label>
-            <input
-              id="email"
-              type="email"
-              required
-              autoComplete="email"
-              value={email}
-              onChange={(event) => setEmail(event.target.value)}
-              className="w-full rounded-md border border-border bg-surface-elevated px-3 py-2 text-foreground outline-none focus:border-primary"
-            />
-          </div>
-
-          <div className="space-y-1">
-            <label htmlFor="password" className="text-sm text-muted-foreground">
-              Senha
-            </label>
-            <input
-              id="password"
-              type="password"
-              required
-              autoComplete="current-password"
-              value={password}
-              onChange={(event) => setPassword(event.target.value)}
-              className="w-full rounded-md border border-border bg-surface-elevated px-3 py-2 text-foreground outline-none focus:border-primary"
-            />
-          </div>
-
-          {error && <p className="text-sm text-destructive">{error}</p>}
-
-          <button
-            type="submit"
-            disabled={isSubmitting}
-            className="w-full rounded-md bg-primary px-3 py-2 font-medium text-primary-foreground transition-opacity hover:opacity-90 disabled:opacity-50"
-          >
-            {isSubmitting ? "Entrando..." : "Entrar"}
-          </button>
-        </form>
-
-        <p className="text-center text-sm text-muted-foreground">
-          Não tem conta?{" "}
-          <Link href="/auth/register" className="text-primary hover:underline">
-            Cadastre-se
-          </Link>
-        </p>
+        <span className="z-10 text-sm text-muted-foreground">
+          © {new Date().getFullYear()} EduStream
+        </span>
       </div>
-    </main>
+
+      <div className="flex items-center justify-center px-4 py-10">
+        <Card className="w-full max-w-95 gap-0 p-10">
+          <div className="mb-8">
+            <h1 className="mb-1.5 text-3xl font-bold text-foreground">
+              Entrar
+            </h1>
+            <p className="text-sm text-muted-foreground">
+              Acesse sua conta EduStream
+            </p>
+          </div>
+
+          <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+            <div className="flex flex-col gap-1.5">
+              <Label
+                htmlFor="email"
+                className="text-[13px] font-normal text-muted-foreground"
+              >
+                E-mail
+              </Label>
+              <input
+                id="email"
+                type="email"
+                placeholder="voce@email.com"
+                required
+                autoComplete="email"
+                value={email}
+                onChange={(event) => setEmail(event.target.value)}
+                className={fieldClass}
+              />
+            </div>
+
+            <div className="flex flex-col gap-1.5">
+              <Label
+                htmlFor="password"
+                className="text-[13px] font-normal text-muted-foreground"
+              >
+                Senha
+              </Label>
+              <PasswordInput
+                id="password"
+                placeholder="••••••••"
+                required
+                autoComplete="current-password"
+                value={password}
+                onChange={(event) => setPassword(event.target.value)}
+                className={fieldClass}
+              />
+            </div>
+
+            {error && <p className="text-sm text-destructive">{error}</p>}
+
+            <Button
+              type="submit"
+              disabled={isSubmitting}
+              size="lg"
+              className="mt-1.5 w-full"
+            >
+              {isSubmitting ? "Entrando..." : "Entrar"}
+            </Button>
+          </form>
+
+          <p className="mt-6 text-center text-sm text-muted-foreground">
+            Não tem conta?{" "}
+            <Link
+              href="/auth/register"
+              className="font-medium text-primary hover:underline"
+            >
+              Cadastre-se
+            </Link>
+          </p>
+        </Card>
+      </div>
+    </div>
   );
 }

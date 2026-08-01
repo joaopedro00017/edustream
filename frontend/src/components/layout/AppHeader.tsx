@@ -21,8 +21,11 @@ export function AppHeader() {
   return (
     <header className="sticky top-0 z-10 flex items-center justify-between border-b border-border bg-surface/80 px-6 py-4 backdrop-blur">
       <nav className="flex items-center gap-6">
-        <span className="text-lg font-semibold tracking-tight text-foreground">
-          EduStream
+        <span className="flex items-center gap-2">
+          <img src="/icons/graduation-cap.svg" alt="" className="size-[22px]" />
+          <span className="text-lg font-semibold tracking-tight text-foreground">
+            EduStream
+          </span>
         </span>
         {navItems.map((item) => (
           <Link
