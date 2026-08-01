@@ -4,6 +4,7 @@ import com.edustream.api.domain.model.User;
 import com.edustream.api.dto.ModuleRequestDTO;
 import com.edustream.api.dto.ModuleResponseDTO;
 import com.edustream.api.service.ModuleService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,14 +24,14 @@ public class ModuleController {
 
     @PreAuthorize("hasRole('INSTRUCTOR')")
     @PostMapping
-    public ResponseEntity<ModuleResponseDTO> cadastrarModulo (@RequestBody ModuleRequestDTO dto, @AuthenticationPrincipal User user){
+    public ResponseEntity<ModuleResponseDTO> cadastrarModulo (@Valid @RequestBody ModuleRequestDTO dto, @AuthenticationPrincipal User user){
         ModuleResponseDTO moduloCadastrado = moduleService.cadastrarModulo(dto,user);
         return ResponseEntity.status(HttpStatus.CREATED).body(moduloCadastrado);
     }
 
     @PreAuthorize("hasRole('INSTRUCTOR')")
     @PutMapping("/{id}")
-    public ResponseEntity<ModuleResponseDTO> atualizarModulo (@PathVariable UUID id, @RequestBody ModuleRequestDTO dto, @AuthenticationPrincipal User user){
+    public ResponseEntity<ModuleResponseDTO> atualizarModulo (@PathVariable UUID id, @Valid @RequestBody ModuleRequestDTO dto, @AuthenticationPrincipal User user){
         ModuleResponseDTO moduloAtualizado = moduleService.atualizarModulo(id,dto,user);
         return ResponseEntity.ok(moduloAtualizado);
     }

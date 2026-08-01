@@ -3,8 +3,8 @@ package com.edustream.api.controller;
 import com.edustream.api.domain.model.User;
 import com.edustream.api.dto.LessonRequestDTO;
 import com.edustream.api.dto.LessonResponseDTO;
-import com.edustream.api.dto.ModuleResponseDTO;
 import com.edustream.api.service.LessonService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -25,14 +25,14 @@ public class LessonController {
 
     @PostMapping
     @PreAuthorize("hasRole('INSTRUCTOR')")
-    public ResponseEntity<LessonResponseDTO> cadastrarAula(@RequestBody LessonRequestDTO dto, @AuthenticationPrincipal User user) {
+    public ResponseEntity<LessonResponseDTO> cadastrarAula(@Valid @RequestBody LessonRequestDTO dto, @AuthenticationPrincipal User user) {
         LessonResponseDTO aulaCadastrada = lessonService.cadastrarAula(dto, user);
         return ResponseEntity.status(HttpStatus.CREATED).body(aulaCadastrada);
     }
 
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('INSTRUCTOR')")
-    public ResponseEntity<LessonResponseDTO> atualizarAula(@PathVariable UUID id, @RequestBody LessonRequestDTO dto, @AuthenticationPrincipal User user){
+    public ResponseEntity<LessonResponseDTO> atualizarAula(@PathVariable UUID id, @Valid @RequestBody LessonRequestDTO dto, @AuthenticationPrincipal User user){
         LessonResponseDTO aulaAtualizada = lessonService.atualizarAula(id, dto, user);
         return ResponseEntity.ok(aulaAtualizada);
     }

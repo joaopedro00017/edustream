@@ -4,6 +4,7 @@ import com.edustream.api.domain.model.User;
 import com.edustream.api.dto.CourseRequestDTO;
 import com.edustream.api.dto.CourseResponseDTO;
 import com.edustream.api.service.CourseService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -45,14 +46,14 @@ public class CourseController {
 
     @PreAuthorize("hasRole('INSTRUCTOR')")
     @PostMapping
-    public ResponseEntity<CourseResponseDTO> salvarCurso(@RequestBody CourseRequestDTO requestDTO, @AuthenticationPrincipal User user){
+    public ResponseEntity<CourseResponseDTO> salvarCurso(@Valid @RequestBody CourseRequestDTO requestDTO, @AuthenticationPrincipal User user){
         CourseResponseDTO cursoSalvo = courseService.cadastrarCurso(user, requestDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(cursoSalvo);
     }
 
     @PreAuthorize("hasRole('INSTRUCTOR')")
     @PutMapping("/{id}")
-    public ResponseEntity<CourseResponseDTO> atualizarCurso (@PathVariable UUID id, @RequestBody CourseRequestDTO dto, @AuthenticationPrincipal User user){
+    public ResponseEntity<CourseResponseDTO> atualizarCurso (@PathVariable UUID id, @Valid @RequestBody CourseRequestDTO dto, @AuthenticationPrincipal User user){
         CourseResponseDTO cursoAtualizado = courseService.atualizarCurso(id,dto,user);
         return ResponseEntity.ok(cursoAtualizado);
     }

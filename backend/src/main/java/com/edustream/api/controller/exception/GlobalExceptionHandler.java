@@ -8,10 +8,12 @@ import com.edustream.api.dto.RestErrorDTO;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.time.Instant;
+import java.util.stream.Collectors;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -49,6 +51,16 @@ public class GlobalExceptionHandler {
     public ResponseEntity<RestErrorDTO> handleConflict(ConflictException exception) {
         RestErrorDTO errorDTO = new RestErrorDTO(Instant.now(), exception.getMessage());
         return ResponseEntity.status(HttpStatus.CONFLICT).body(errorDTO);
+    }
+
+    // Captura falha de validação do @Valid nos DTOs de request (Status 400)
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<RestErrorDTO> handleValidationError(MethodArgumentNotValidException exception) {
+        String message = exception.getBindingResult().getFieldErrors().stream()
+                .map(error -> error.getField() + ": " + error.getDefaultMessage())
+                .collect(Collectors.joining("; "));
+        RestErrorDTO errorDTO = new RestErrorDTO(Instant.now(), message);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorDTO);
     }
 
     // Mecanismo de segurança genérico para outros erros inesperados (Status 400)

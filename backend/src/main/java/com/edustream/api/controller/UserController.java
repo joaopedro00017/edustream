@@ -5,6 +5,7 @@ import com.edustream.api.dto.LoginResponseDTO;
 import com.edustream.api.dto.UserRegisterDTO;
 import com.edustream.api.dto.UserResponseDTO;
 import com.edustream.api.service.UserService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,13 +19,13 @@ public class UserController {
     private final UserService userService;
 
     @PostMapping("/register")
-    public ResponseEntity<UserResponseDTO> register(@RequestBody UserRegisterDTO dto){
+    public ResponseEntity<UserResponseDTO> register(@Valid @RequestBody UserRegisterDTO dto){
         UserResponseDTO resultadoDoServico = userService.registerUser(dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(resultadoDoServico);
     }
 
     @PostMapping("/login")
-    public ResponseEntity<LoginResponseDTO> login(@RequestBody LoginRequestDTO dto) {
+    public ResponseEntity<LoginResponseDTO> login(@Valid @RequestBody LoginRequestDTO dto) {
         LoginResponseDTO response = userService.loginUser(dto);
         return ResponseEntity.ok(response);
     }
